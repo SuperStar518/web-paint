@@ -422,13 +422,11 @@ strong *,
 #contents{
 	width:100%;
 	min-height:calc(100vh - 126px);
-	padding:100px 25px;
+	padding:40px 25px;
 	box-sizing:border-box;
 }
 
-#image{
-	width:100%;
-	max-width:800px;
+#myDiagram{
 	margin:0 auto;
 }
 
@@ -486,3 +484,8 @@ strong *,
 
 #editBtn a:hover::after,
 #editBtn a:hover::before{ opacity:1;}
+
+#myDiagram canvas {
+	outline: none;
+	border: 1px solid black;
+}

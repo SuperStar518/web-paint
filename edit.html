@@ -1,60 +1,70 @@
 <!DOCTYPE HTML>
-<html lang="ja">
+<html lang='ja'>
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="format-detection" content="telephone=no" />
-<meta name="viewport" content="width=850">
-<title>Gyazo</title>
-<meta name="description" content="" />
-<meta name="keywords" content="" />
-<link rel="stylesheet" href="assets/css/layout.css" />
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='format-detection' content='telephone=no' />
+    <meta name='viewport' content='width=850'>
+    <title>Gyazo</title>
+    <meta name='description' content='' />
+    <meta name='keywords' content='' />
+    <link rel='stylesheet' href='assets/css/color-picker.min.css'>
+    <link rel='stylesheet' href='assets/css/layout.css' />
+    
+    <script src='https://code.jquery.com/jquery-3.3.1.slim.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js'></script>
+    <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js'></script>
+    <script src='assets/js/color-picker.min.js'></script>
+    <script src='assets/js/go.js'></script>
+    <script src='assets/js/FreehandDrawingTool.js'></script>
+    <script src='assets/js/my-web-paint.js'></script>
 <!--[if lt IE 9]>
-<script src="assets/js/html5shiv-printshiv.min.js"></script>
-<script src="assets/js/ie-css3.js"></script>
+<script src='assets/js/html5shiv-printshiv.min.js'></script>
+<script src='assets/js/ie-css3.js'></script>
 <![endif]-->
 </head>
 <body>
 
-<header id="header">
-    <p id="lead">編集モード</p>
-    <ul id="menu" class="flex flex-align flex-center">
-        <li class="editItem">
-            <ul class="flex">
-                <li><a href="#"><img src="assets/img/icon-plus.svg" width="30" height="30" alt=""></a></li>
-                <li><a href="#"><img src="assets/img/icon-minus.svg" width="30" height="30" alt=""></a></li>
+<header id='header'>
+    <p id='lead'>編集モード</p>
+    <ul id='menu' class='flex flex-align flex-center'>
+        <li class='editItem'>
+            <ul class='flex'>
+                <li><a id='zoomIn' onclick='zoomIn()'><img src='assets/img/icon-plus.svg' width='30' height='30' alt=''></a></li>
+                <li><a id='zoomOut' onclick='zoomOut()'><img src='assets/img/icon-minus.svg' width='30' height='30' alt=''></a></li>
             </ul>
         </li>
-        <li class="editItem">
-            <ul class="flex">
-                <li><a href="#" class="active"><img src="assets/img/icon-arrow.svg" width="30" height="30" alt=""></a></li>
-                <li><a href="#"><img src="assets/img/icon-line.svg" width="30" height="30" alt=""></a></li>
-                <li><a href="#"><img src="assets/img/icon-box.svg" width="30" height="30" alt=""></a></li>
-                <li><a href="#"><img src="assets/img/icon-text.svg" width="30" height="30" alt=""></a></li>
-                <li><a href="#"><img src="assets/img/icon-pencil.svg" width="30" height="30" alt=""></a></li>
+        <li class='editItem'>
+            <ul class='flex'>
+                <li><a href='#' class='active'><img src='assets/img/icon-arrow.svg' width='30' height='30' alt=''></a></li>
+                <li><a href='#'><img src='assets/img/icon-line.svg' width='30' height='30' alt=''></a></li>
+                <li><a href='#'><img src='assets/img/icon-box.svg' width='30' height='30' alt=''></a></li>
+                <li><a href='#'><img src='assets/img/icon-text.svg' width='30' height='30' alt=''></a></li>
+                <li><a href='#'><img src='assets/img/icon-pencil.svg' width='30' height='30' alt=''></a></li>
             </ul>
         </li>
-        <li class="editItem">
-            <ul class="flex">
-                <li><a href="#"><img src="assets/img/icon-campus.svg" width="30" height="30" alt=""></a></li>
+        <li class='editItem'>
+            <ul class='flex'>
+                <li><a href='#'><img src='assets/img/icon-campus.svg' width='30' height='30' alt='' id='color-picker'></a></li>
             </ul>
         </li>
-        <li class="editItem">
-            <ul class="flex">
-                <li><a href="#" class="textType return">取り消し</a></li>
-                <li><a href="#" class="textType save">保存</a></li>
-                <li><a href="#" class="textType cancel">キャンセル</a></li>
+        <li class='editItem'>
+            <ul class='flex'>
+                <li><a href='#' class='textType return'>取り消し</a></li>
+                <li><a href='#' class='textType save'>保存</a></li>
+                <li><a href='#' class='textType cancel'>キャンセル</a></li>
             </ul>
         </li>
     </ul><!--/.inner-->
 <!--/#header--></header>
 
 
-<main id="contents" class="flex flex-align">
-    <div id="image"><img src="assets/img/image.png" class="img-responsive" alt=""></div>
+<main id='contents' class='flex flex-align'>
+    <div id='myDiagram'></div>
 </main><!--/#contents-->
 
 
 </body>
+
 </html>
 
