@@ -4,12 +4,20 @@ let backImagePath = 'assets/img/image.png';
 let myDiagram;
 let canvas_width = 100;
 let canvas_height = 100;
+let current_tool;
 
 const marginHeight = 126 + 80 + 20;
 const marginWidth = 50 + 20;
 const MAX_SCALE = 1;
 const MIN_SCALE = 0.3;
 const SCALE_STEP = 0.1;
+
+const TOOL_ARROW = 0;
+const TOOL_LINE = 1;
+const TOOL_RECT = 2;
+const TOOL_TEXT = 3;
+const TOOL_FREEHAND = 4;
+
 
 function init() {
     initColorPicker();
@@ -43,9 +51,10 @@ function initGoModule() {
         maxScale: MAX_SCALE,
         minScale: MIN_SCALE
     });
-
+    // myDiagram.defaultCursor = 'crosshair';
     loadBackgroud();
-    initFreehand(myDiagram);
+    initLine();
+    initFreehand();
 }
 
 function loadBackgroud() {
@@ -73,13 +82,54 @@ function loadBackgroud() {
 
 }
 
+function initLine() {
+    let tool = new LineDrawingTool();
+    tool.archetypeNodeData =
+        { stroke: 'black', strokeWidth: 2, category: 'Line' };
+    tool.isBackgroundOnly = false;
+    myDiagram.toolManager.mouseMoveTools.insertAt(0, tool);
+    tool.isEnabled = true;
+    
+    myDiagram.nodeTemplateMap.add("Line",
+        $_(go.Node, 'Spot',
+            new go.Binding('zOrder'),
+            new go.Binding('layerName', 'isSelected', function(sel) { return sel ? 'Foreground' : ''; }).ofObject(),
+            {selectable: true },
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            { locationObjectName: "SHAPE", locationSpot: new go.Spot(0, 0, 0.5, 0.5) },
+            { resizable: true, resizeObjectName: 'PANEL' },
+            new go.Binding("locationSpot", "strokeWidth", function(sw) { return new go.Spot(0, 0, sw / 2, sw / 2); }).ofObject("SHAPE"),
+            $_(go.Panel, 'Auto',
+                { name: 'PANEL' },
+                $_(go.Shape, { name: "SHAPE" },
+                    new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify),
+                    new go.Binding("geometry", "pts", makeGeo).makeTwoWay(saveGeo),
+                    new go.Binding('stroke', 'color').makeTwoWay(),
+                    new go.Binding('strokeWidth', 'strokeWidth').makeTwoWay()
+                )
+            )
+    ));
+
+    function makeGeo(pts) {
+        var geo = new go.Geometry(go.Geometry.Line);
+        geo.startX = pts[0];
+        geo.startY = pts[1];
+        geo.endX = pts[2];
+        geo.endY = pts[3];
+        return geo;
+    }
+    function saveGeo(geo) {
+        return [geo.startX, geo.startY, geo.endX, geo.endY];
+    }
+}
+
 function initFreehand() {
      let tool = new FreehandDrawingTool();
      tool.archetypePartData =
          { stroke: 'black', strokeWidth: 2, category: 'FreehandDrawing' };
      tool.isBackgroundOnly = false;
-     myDiagram.toolManager.mouseMoveTools.insertAt(0, tool);
-     tool.isEnabled = true;
+     myDiagram.toolManager.mouseMoveTools.insertAt(1, tool);
+     tool.isEnabled = false;
  
      myDiagram.nodeTemplateMap.add('FreehandDrawing',
          $_(go.Node, 'Spot',
@@ -131,7 +181,7 @@ function drawFreehand() {
 }
 
 function drawLine() {
-    
+
 }
 
 $(document).ready(function() {
