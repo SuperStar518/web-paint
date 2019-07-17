@@ -1,0 +1,488 @@
+@charset "utf-8";  
+/*------------------------------------------------------------ 
+	デフォルトスタイル	全ページ共通css
+------------------------------------------------------------*/  
+
+/**** フォントサイズ　*************
+
+基本を12pxに、サイズは％指定。
+
+====偶数====　　　====奇数====
+■10px = 84%      ■11px = 92%
+■12px = 100%     ■13px = 109%
+■14px = 117%     ■15px = 125%
+■16px = 134%     ■17px = 142%
+■18px = 150%     ■19px = 159%
+■20px = 167%     ■21px = 175%
+■22px = 184%     ■23px = 192%
+■24px = 200%     ■25px = 209%
+■26px = 217%     ■27px = 226%
+
+**********************************/
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-size: 76%;
+	background:#525050;
+	-webkit-text-size-adjust: 100%;
+	min-width:850px;
+}
+
+html { font-size: 100%;}
+
+div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td, figure, figcaption {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-family: "游ゴシック", "Yu Gothic", YuGothic, 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W3', Meiryo, 'メイリオ', Osaka, 'MS PGothic', arial, helvetica, sans-serif;
+	font-size: 100%;
+	line-height: 1.5;
+	font-weight: normal;
+	vertical-align: baseline;
+	background: transparent;
+}  
+
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section,main {
+    display: block;
+}
+
+blockquote,
+q { quotes: none;}
+
+a {
+	text-decoration: none;
+	outline: none;
+}
+
+ins {
+	background-color: #ff9;
+	color: #000;
+	text-decoration: none;
+}
+
+mark {
+	background-color: #ff9;
+	color: #000;
+	font-style: italic;
+	font-weight: bold;
+}
+
+del { text-decoration: line-through;}
+abbr[title], dfn[title] {
+	border-bottom: 1px dotted;
+	cursor: help;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+hr {
+	display: block;
+	height: 1px;
+	border: 0;
+	border-top: 1px solid #cccccc;
+	margin: 1em 0;
+	padding: 0;
+}
+
+input,
+select,
+textarea {
+	font-size: 100%;
+	vertical-align: middle;
+	font-family: "游ゴシック", "Yu Gothic", YuGothic, 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro W3', Meiryo, 'メイリオ', Osaka, 'MS PGothic', arial, helvetica, sans-serif;
+}
+
+input[type=text],
+input[type=tel],
+input[type=password],
+textarea{ -webkit-appearance:none;}
+
+input[type=checkbox],
+input[type=radio]{
+	position:relative;
+	top:-1px;
+}
+
+ul { list-style-type: none;}
+img { vertical-align: middle;}
+
+.img-responsive{
+	max-width:100%;
+	height:auto;
+}
+
+.opacity { transition:all 0.2s ease-out;}
+
+.opacity:hover { opacity: .7;}
+
+.clear { clear: both;}
+.clearfix { width: 100%;}
+.clearfix:after {
+	content: " ";
+	display: block;
+	clear: both;
+	visibility:hidden;
+	height:0.1px;
+	font-size:0.1em;
+	line-height:0;
+}
+
+.fl { float: left;}
+.fr { float: right;}
+
+.txtl { text-align: left;}
+.txtr { text-align: right;}
+.txtc { text-align: center;}
+
+strong,
+strong *,
+.fwb { font-weight: bold;}
+
+.clrr { color: #FF0000;}
+.clrb { color: #333;}
+.clrw { color: #fff;}
+
+.il { display: inline;}
+.bl { display: block;}
+.no { display: none;}
+
+.li2 { line-height: 2;}
+
+/* margin */
+.mt10 { margin-top: 10px;}
+.mt20 { margin-top: 20px;}
+.mt30 { margin-top: 30px;}
+
+.mr10 { margin-right: 10px;}
+.mr20 { margin-right: 20px;}
+.mr30 { margin-right: 30px;}
+
+.mb10 { margin-bottom: 10px;}
+.mb20 { margin-bottom: 20px;}
+.mb30 { margin-bottom: 30px;}
+
+.ml10 { margin-left: 10px;}
+.ml20 { margin-left: 20px;}
+.ml30 { margin-left: 30px;}
+
+/* padding */
+.pt10 { padding-top: 10px;}
+.pt20 { padding-top: 20px;}
+.pt30 { padding-top: 30px;}
+
+.pr10 { padding-right: 10px;}
+.pr20 { padding-right: 20px;}
+.pr30 { padding-right: 30px;}
+
+.pb10 { padding-bottom: 10px;}
+.pb20 { padding-bottom: 20px;}
+.pb30 { padding-bottom: 30px;}
+
+.pl10 { padding-left: 10px;}
+.pl20 { padding-left: 20px;}
+.pl30 { padding-left: 30px;}
+
+/* font-size */
+.font10 { font-size: 84%;}
+.font11 { font-size: 92%;}
+.font12 { font-size: 100%;}
+.font13 { font-size: 109%;}
+.font14 { font-size: 117%;}
+.font15 { font-size: 125%;}
+.font16 { font-size: 134%;}
+.font17 { font-size: 142%;}
+.font18 { font-size: 150%;}
+.font19 { font-size: 159%;}
+.font20 { font-size: 167%;}
+.font21 { font-size: 175%;}
+.font22 { font-size: 184%;}
+.font23 { font-size: 192%;}
+.font24 { font-size: 200%;}
+.font25 { font-size: 209%;}
+.font26 { font-size: 217%;}
+.font27 { font-size: 226%;}
+
+
+
+/*------------------------------------------------------------ 
+    スタイル 
+------------------------------------------------------------*/
+
+.flex{
+	display:-webkit-box;
+	display:-ms-flexbox;
+	display:flex;
+	-webkit-box-pack:justify;
+	   -ms-flex-pack:justify;
+	justify-content:space-between;
+	-webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.flex-end{
+	-webkit-box-pack: end;
+	-ms-flex-pack: end;
+	justify-content: flex-end;
+}
+
+.flex-center{
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+}
+
+.flex-left{
+	-webkit-box-pack: start;
+	-ms-flex-pack: start;
+	justify-content: start;
+}
+
+.flex-align{
+  -webkit-box-align: center;
+     -ms-flex-align: center;
+        align-items: center;
+}
+
+.flex-column{
+ -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+     -ms-flex-direction: column;
+         flex-direction: column;
+}
+.hover figure{ overflow:hidden;}
+
+.hover img{ transition:all 0.4s ease-out;}
+
+.hover:hover img{ transform:scale(1.1);}
+
+.tel-link a{ color:inherit;}
+
+/*------------------------------------------------------------ 
+    ヘッダー 
+------------------------------------------------------------*/
+
+#header {
+	width:100%;
+	height:126px;
+	background:#FAFAFA;
+}
+
+#lead{
+	width:100%;
+	text-align:center;
+	line-height:36px;
+	color:#fff;
+	font-size:117%;
+	background:#424D86;
+}
+
+#menu{
+	width:100%;
+	height:90px;
+}
+
+.copyItem{
+	width:150px;
+	padding:0 20px;
+	cursor:pointer;
+}
+
+.copyItem dt{
+	width:auto;
+	line-height:20px;
+	color:#000;
+	margin-bottom:10px;
+	position:relative;
+}
+
+.copyItem dt::before{
+	display:block;
+	content:"";
+	position:absolute;
+}
+
+.copyItem .backlog{ padding-left:34px;}
+.copyItem .backlog::before{
+	width:20px;
+	height:20px;
+	background:url(../img/icon-backlog.png) no-repeat;
+	background-size:20px 20px;
+	position:absolute;
+	left:0;
+	top:0;
+}
+
+.copyItem .markdwon{ padding-left:44px;}
+.copyItem .markdwon::before{
+	width:40px;
+	height:30px;
+	background:url(../img/icon-markdwon.svg) no-repeat 50% 50%;
+	background-size:30px 30px;
+	position:absolute;
+	left:0;
+	top:-5px;
+}
+
+.copyItem .imgurl{ padding-left:44px;}
+.copyItem .imgurl::before{
+	width:40px;
+	height:30px;
+	background:url(../img/icon-imgurl.svg) no-repeat 50% 50%;
+	background-size:30px 30px;
+	position:absolute;
+	left:0;
+	top:-5px;
+}
+
+.copyItem input{
+	width:100%;
+	height:30px;
+	color:#000;
+	padding:0 5px;
+	border:1px solid #C5C5C5;
+	background:#fff;
+	cursor:pointer;
+	box-sizing:border-box;
+}
+
+.editItem{ padding:0 10px;}
+
+.editItem ul{
+	border:1px solid #C5C5C5;
+	border-radius:3px;
+	overflow:hidden;
+}
+
+.editItem li + li{ border-left:1px solid #C5C5C5;}
+
+.editItem a{
+	display:block;
+	padding:1px;
+	transition:all 0.2s ease-out;
+}
+
+.editItem a:not(.textType):hover,
+.editItem .textType.active:hover{ background-color:#EAEAEA;}
+
+.editItem .textType{
+	height:30px;
+	line-height:30px;
+	padding:0 15px 0 40px;
+	color:#DADADA;
+	font-size:117%;
+	cursor:text;
+	background:no-repeat 6px 50%;
+	background-size:30px 30px;
+}
+
+.editItem .textType.return{ background-image:url(../img/icon-return-off.svg);}
+.editItem .textType.save  { background-image:url(../img/icon-save-off.svg);}
+.editItem .textType.cancel{ background-image:url(../img/icon-cancel-off.svg);}
+
+.editItem .active{
+	background:#E6E6E6;
+	box-shadow:1px 1px 3px 0px rgba(0,0,0,.08) inset;
+}
+
+.editItem .textType.active{
+	color:#000;
+	cursor:pointer;
+	background:no-repeat 6px 50%;
+	background-size:30px 30px;
+	box-shadow:none;
+}
+
+.editItem .textType.active.return{ background-image:url(../img/icon-return-on.svg);}
+.editItem .textType.active.save  { background-image:url(../img/icon-save-on.svg);}
+.editItem .textType.active.cancel{ background-image:url(../img/icon-cancel-on.svg);}
+
+
+/*------------------------------------------------------------ 
+    コンテンツ 
+------------------------------------------------------------*/ 
+
+#contents{
+	width:100%;
+	min-height:calc(100vh - 126px);
+	padding:100px 25px;
+	box-sizing:border-box;
+}
+
+#image{
+	width:100%;
+	max-width:800px;
+	margin:0 auto;
+}
+
+#editBtn{
+	width:60px;
+	height:60px;
+	position:fixed;
+	right:25px;
+	bottom:25px;
+}
+
+#editBtn a{
+	display:block;
+	width:30px;
+	height:30px;
+	text-align:center;
+	padding:15px;
+	background:#fff;
+	border-radius:50%;
+	position:relative;
+}
+
+#editBtn a::before{
+	display:block;
+	content:"編集";
+	width:70px;
+	text-align:center;
+	line-height:24px;
+	color:#fff;
+	background:#000;
+	position:absolute;
+	top:-34px;
+	left:50%;
+	transform:translateX(-50%);
+	border-radius:3px;
+	opacity:0;
+	transition:all 0.2s ease-out;
+}
+
+#editBtn a::after{
+	display:block;
+	content:"";
+	width:0;
+	height:0;
+	border-width:5px 4px 0 4px;
+	border-color:#000 transparent transparent transparent;
+	border-style:solid;
+	position:absolute;
+	top:-10px;
+	left:50%;
+	transform:translateX(-50%);
+	opacity:0;
+	transition:all 0.2s ease-out;
+}
+
+#editBtn a:hover::after,
+#editBtn a:hover::before{ opacity:1;}

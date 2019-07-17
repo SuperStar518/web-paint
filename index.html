@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no" />
+<meta name="viewport" content="width=850">
+<title>Gyazo</title>
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+<link rel="stylesheet" href="assets/css/layout.css" />
+<!--[if lt IE 9]>
+<script src="assets/js/html5shiv-printshiv.min.js"></script>
+<script src="assets/js/ie-css3.js"></script>
+<![endif]-->
+</head>
+<body>
+
+<header id="header">
+    <p id="lead">クリックすることでURLがコピーできます。</p>
+    <ul id="menu" class="flex flex-align flex-center">
+        <li class="copyItem">
+            <dl>
+                <dt class="imgurl">画像URL</dt>
+                <dd><input type="text" value="https://i.gyazo.com/89ad" readonly></dd>
+            </dl>
+        </li>
+        <li class="copyItem">
+            <dl>
+                <dt class="backlog">Backlogイメージ</dt>
+                <dd><input type="text" value="#image(https://i.gyazo.com/89ad)" readonly></dd>
+            </dl>
+        </li>
+        <li class="copyItem">
+            <dl>
+                <dt class="backlog">Backlogサムネイル</dt>
+                <dd><input type="text" value="#thumbnail(https://i.gyazo.com/89ad38b3b9eefcb6b8adcf8facc710e8.jpg) " readonly></dd>
+            </dl>
+        </li>
+        <li class="copyItem">
+            <dl>
+                <dt class="markdwon">Markdwon</dt>
+                <dd><input type="text" value="[![Image from liilGyazo](https://i.gyazo.com/89ad38b3b9eefcb6b8adcf8facc710e8.jpg)](https://gyazo.com/89ad38b3b9eefcb6b8adcf8facc710e8)" readonly></dd>
+            </dl>
+        </li>
+    </ul><!--/.inner-->
+<!--/#header--></header>
+
+
+<main id="contents" class="flex flex-align">
+    <div id="image" class="txtc"><img src="assets/img/zbeojmj.png" class="img-responsive" alt=""></div>
+    <div id="editBtn"><a href="./edit.html"><img src="assets/img/icon-edit.png" width="30" height="30" alt=""></a></div>
+</main><!--/#contents-->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+
+//URLコピー
+$('.copyItem').click(function(){
+	var $this = $(this),
+		$input = $this.find('input');
+
+	$input.select();
+	document.execCommand('copy');
+	$('#lead').text('URLをコピーしました');
+	return false;
+});
+
+</script>
+
+</body>
+</html>
