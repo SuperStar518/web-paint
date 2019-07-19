@@ -172,6 +172,10 @@ FreehandDrawingTool.prototype.doMouseUp = function() {
     // assign the Shape.geometry
     var shape = part.findObject("SHAPE");
     if (shape !== null) shape.geometry = geo;
+    if (diagram.allowSelect) {
+      diagram.select(part);  // raises ChangingSelection/Finished
+    }
+
   }
   this.stopTool();
   if (started) diagram.commitTransaction(this.name);
