@@ -25,14 +25,27 @@ function FreehandDrawingTool() {
   this.name = "FreehandDrawing";
   this._archetypePartData = {}; // the data to copy for a new polyline Part
   this._isBackgroundOnly = true; // affects canStart()
-
-  // this is the Shape that is shown during a drawing operation
-  this._temporaryShape = go.GraphObject.make(go.Shape, { name: "SHAPE", fill: null, strokeWidth: 1.5 });
-  // the Shape has to be inside a temporary Part that is used during the drawing operation
-  go.GraphObject.make(go.Part, { layerName: "Tool" }, this._temporaryShape);
+  this.createTemp();
 }
 go.Diagram.inherit(FreehandDrawingTool, go.Tool);
 
+FreehandDrawingTool.prototype.createTemp = function() {
+    if (this._temporaryShape) {
+      this.diagram.remove(this._temporaryShape.part);
+    }
+    // this is the Shape that is shown during a drawing operation
+    this._temporaryShape = go.GraphObject.make(go.Shape, { name: "SHAPE", fill: null, strokeWidth: lineWidth, stroke: currentColor });
+    // the Shape has to be inside a temporary Part that is used during the drawing operation
+    go.GraphObject.make(go.Part, { layerName: "Tool" }, this._temporaryShape);
+}
+
+FreehandDrawingTool.prototype.changeColor = function() {
+  this.createTemp();
+}
+
+FreehandDrawingTool.prototype.changeWidth = function() {
+  this.createTemp();
+}
 /**
 * Only start if the diagram is modifiable and allows insertions.
 * OPTIONAL: if the user is starting in the diagram's background, not over an existing Part.
@@ -94,6 +107,9 @@ FreehandDrawingTool.prototype.addPoint = function(p) {
   var q = new go.Point(p.x-viewpt.x, p.y-viewpt.y);
 
   var part = shape.part;
+  if(!part) {
+    var aa = 0;
+  }
   if (part.diagram === null) {
     var fig = new go.PathFigure(q.x, q.y, true);  // possibly filled, depending on Shape.fill
     var geo = new go.Geometry().add(fig);  // the Shape.geometry consists of a single PathFigure
@@ -164,18 +180,23 @@ FreehandDrawingTool.prototype.doMouseUp = function() {
     diagram.startTransaction(this.name);
     // create the node data for the model
     var d = diagram.model.copyNodeData(this.archetypePartData);
-    // adding data to model creates the actual Part
-    diagram.model.addNodeData(d);
-    var part = diagram.findPartForData(d);
-    // assign the location
-    part.location = new go.Point(pos.x + geo.bounds.width/2, pos.y + geo.bounds.height/2);
-    // assign the Shape.geometry
-    var shape = part.findObject("SHAPE");
-    if (shape !== null) shape.geometry = geo;
-    if (diagram.allowSelect) {
-      diagram.select(part);  // raises ChangingSelection/Finished
+    if (d) {
+      d.strokeWidth = lineWidth;
+      d.color = currentColor;
+      maxZOrder++;
+      d.zOrder = maxZOrder;
+      // adding data to model creates the actual Part
+      diagram.model.addNodeData(d);
+      var part = diagram.findPartForData(d);
+      // assign the location
+      part.location = new go.Point(Math.round(pos.x-lineWidth/2-1), Math.round(pos.y-lineWidth/2-1));
+      // assign the Shape.geometry
+      var shape = part.findObject("SHAPE");
+      if (shape !== null) shape.geometry = geo;
+      // if (diagram.allowSelect) {
+      //   diagram.select(part);  // raises ChangingSelection/Finished
+      // }
     }
-
   }
   this.stopTool();
   if (started) diagram.commitTransaction(this.name);

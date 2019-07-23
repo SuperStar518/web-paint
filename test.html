@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Bootstrap 4 Popovers</title>
+<script src='assets/js/go.js'></script>
+
+</head>
+<body>
+<div id='myDiagram' style='width:810px; height:420px; border: 2px solid blue'>
+</div>
+</body>
+<script>
+    const widthS = '800px';
+    const heightS = '410px';
+    $_ = go.GraphObject.make; 
+    myDiagram = $_(go.Diagram, 'myDiagram',
+    {
+        'animationManager.isEnabled': false,
+        'undoManager.isEnabled': true,
+        allowHorizontalScroll: false, 
+        allowVerticalScroll: false,
+        'draggingTool.dragsLink': true,
+        'draggingTool.isGridSnapEnabled': true,
+        'relinkingTool.isUnconnectedLinkValid': true,
+    });
+
+    const img = new Image();
+    img.src = 'assets/img/image.png';
+
+    img.addEventListener('load', function(){
+        
+        // const canvasElement = $('#myDiagram canvas');
+        // const ctx = canvas.getContext("2d");
+        // ctx.drawImage(img, 0, 0);
+        myDiagram.add(
+            $_(go.Part, 'Spot',
+            $_(go.Picture, 'assets/img/image.png', { width: widthS, height: heightS, imageStretch: go.GraphObject.UniformToFill  })
+        ));
+    });
+</script>
+</html>            

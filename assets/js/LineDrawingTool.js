@@ -6,25 +6,33 @@ function LineDrawingTool() {
 
     /** @type {Object} */
     this._archetypeNodeData = {};
-
-    var b = new go.Part();
-    b.layerName = "Tool";
-    b.selectable = false;
-    b.locationObjectName = "SHAPE";
-    var r = new go.Shape();
-    r.name = "SHAPE";
-    r.geometry = new go.Geometry(go.Geometry.Line);
-    r.fill = null;
-    r.strokeWidth = 2;
-    r.position = new go.Point(0, 0);
-    b.add(r);
-    b.locationSpot = new go.Spot(0, 0, r.strokeWidth/2, r.strokeWidth/2);
-    /** @type {Part} */
-    this._tempLine = b;
 }
 
 go.Diagram.inherit(LineDrawingTool, go.Tool);
 
+  LineDrawingTool.prototype.createTemp = function() {
+  //function createTemp() {
+      var b = new go.Part();
+      b.layerName = "Tool";
+      b.selectable = false;
+      b.locationObjectName = "SHAPE";
+      var r = new go.Shape();
+      r.name = "SHAPE";
+      r.geometry = new go.Geometry(go.Geometry.Line);
+      r.fill = null;
+      r.strokeWidth = 3;
+      r.position = new go.Point(0, 0);
+      r.stroke = currentColor;
+      b.add(r);
+      b.locationSpot = new go.Spot(0, 0, r.strokeWidth/2, r.strokeWidth/2);
+      /** @type {Part} */
+      this._tempLine = b;
+      //return b;
+  }
+
+  LineDrawingTool.prototype.changeColor = function() {
+    this.createTemp();
+  }
   /**
   * This tool can run when there has been a mouse-drag, far enough away not to be a click,
   * and there has been delay of at least {@link #delay} milliseconds
@@ -67,6 +75,8 @@ go.Diagram.inherit(LineDrawingTool, go.Tool);
     if (diagram === null) return;
     this.isActive = true;
     diagram.isMouseCaptured = true;
+    this.createTemp();
+//    this._tempLine = createTemp();
     diagram.add(this.tempLine);
     this.doMouseMove();
   };
@@ -137,15 +147,19 @@ go.Diagram.inherit(LineDrawingTool, go.Tool);
     if (arch !== null) {
       var data = diagram.model.copyNodeData(arch);
       if (data) {
+        data.color = currentColor;
+        data.strokeWidth = 3;
+        maxZOrder++;
+        data.zOrder = maxZOrder;
         diagram.model.addNodeData(data);
         part = diagram.findPartForData(data);
       }
     }
     if (part !== null) {
       LineDrawingTool.updateLineGeometry(diagram.firstInput.documentPoint, diagram.lastInput.documentPoint, part);
-      if (diagram.allowSelect) {
-        diagram.select(part);  // raises ChangingSelection/Finished
-      }
+      // if (diagram.allowSelect) {
+      //   diagram.select(part);  // raises ChangingSelection/Finished
+      // }
     }
 
     // set the TransactionResult before raising event, in case it changes the result or cancels the tool

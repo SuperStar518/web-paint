@@ -8,11 +8,13 @@
     <title>Gyazo</title>
     <meta name='description' content='' />
     <meta name='keywords' content='' />
+    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css'>
+    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css'>
     <link rel='stylesheet' href='assets/css/color-picker.min.css'>
     <link rel='stylesheet' href='assets/css/layout.css' />
-    
-    <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js'></script>
+
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js'></script>
     <script src='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js'></script>
     <script src='assets/js/color-picker.min.js'></script>
     <script src='assets/js/go.js'></script>
@@ -21,6 +23,7 @@
     <script src='assets/js/LineDrawingTool.js'></script>
     <script src='assets/js/RectDrawingTool.js'></script>
     <script src='assets/js/FreehandDrawingTool.js'></script>
+    <script src='assets/js/download.js'></script>
     <script src='assets/js/my-web-paint.js'></script>
 <!--[if lt IE 9]>
 <script src='assets/js/html5shiv-printshiv.min.js'></script>
@@ -40,34 +43,64 @@
         </li>
         <li class='editItem'>
             <ul class='flex'>
-                <li><a href='#' onclick='drawArrow()' class='active'><img src='assets/img/icon-arrow.svg' width='30' height='30' alt=''></a></li>
-                <li><a href='#' onclick='drawLine()'><img src='assets/img/icon-line.svg' width='30' height='30' alt=''></a></li>
-                <li><a href='#' onclick='drawRect()'><img src='assets/img/icon-box.svg' width='30' height='30' alt=''></a></li>
-                <li><a href='#' onclick='drawText()'><img src='assets/img/icon-text.svg' width='30' height='30' alt=''></a></li>
-                <li><a href='#' onclick='drawFreehand()'><img src='assets/img/icon-pencil.svg' width='30' height='30' alt=''></a></li>
+                <li><a id='arrowMenu' onclick='drawArrow()' class='active'><img src='assets/img/icon-arrow.svg' width='30' height='30' alt=''></a></li>
+                <li><a id='lineMenu' onclick='drawLine()'><img src='assets/img/icon-line.svg' width='30' height='30' alt=''></a></li>
+                <li><a id='rectMenu' onclick='drawRect()'><img src='assets/img/icon-box.svg' width='30' height='30' alt=''></a></li>
+                <li><a id='textMenu' onclick='drawText()'><img src='assets/img/icon-text.svg' width='30' height='30' alt=''></a></li>
+                <li><a id='pencilMenu' onclick='drawFreehand()'data-toggle='popover'><img src='assets/img/icon-pencil.svg' width='30' height='30' alt=''></a></li>
             </ul>
         </li>
         <li class='editItem'>
             <ul class='flex'>
-                <li><a href='#'><img src='assets/img/icon-campus.svg' width='30' height='30' alt='' id='color-picker'></a></li>
+                <li><a id='color-picker' onmousedown='hideLineWidthPopover()'></a></li>
             </ul>
         </li>
         <li class='editItem'>
             <ul class='flex'>
-                <li><a href='#' onclick='undo()' class='textType return'>取り消し</a></li>
-                <li><a href='#' class='textType save'>保存</a></li>
-                <li><a href='#' class='textType cancel'>キャンセル</a></li>
+                <li><a onclick='undo()' class='textType return'>取り消し</a></li>
+                <li><a onclick='save()' class='textType save'>保存</a></li>
+                <li><a onclick='cancel()' class='textType cancel active'>キャンセル</a></li>
             </ul>
         </li>
     </ul><!--/.inner-->
 <!--/#header--></header>
 
+<div class='slidecontainer' id='lineWidthDiv'>
+    <input type='range' min='1' max='20' value='5' class='slider' id='lineWidthRange' onchange='changeLineWidth(this.value)'>
+</div>
 
-<main id='contents' class='flex flex-align'>
-    <div id='myDiagram'></div>
+<main id='contents' class='flex flex-align' style='position: relative;'>
+    <div style='margin: auto; display: inline-block;'>
+        <div style='position: relative;'>
+            <div id='myDiagram'></div>
+            <div id='contextMenu' style='position: absolute; z-index: 2'>
+                <button type='button' id='btn_del' class='btn btn-default delete-btn' onclick='cxcommand(event)'>
+                    <i class='fa fa-times'></i>
+                </button>
+                <button type='button' id='btn_up' class='btn btn-default' onclick='cxcommand(event)'>
+                    <i class='fa fa-level-up'></i>
+                </button>
+                <button type='button' id='btn_down'class='btn btn-default' onclick='cxcommand(event)'>
+                    <i class='fa fa-level-down'></i>
+                </button>
+                <button type='button' id='btn_bucket'class='btn btn-default bucket' onclick='cxcommand(event)'>
+                </button>
+                <button id='btn_txt_large' class='btn btn-default text-large' onclick='cxcommand(event)'>
+                    <i class='fa fa-font'></i>+
+                </button>
+                <button id='btn_txt_small' class='btn btn-default text-small' onclick='cxcommand(event)'>
+                    <i class='fa fa-font'></i>-
+                </button>
+                <select id='btn_font_select' onchange='cxcommand(event)' onclick='cxcommand(event)'>
+                    <option value='Open sans' selected='selected'>Default</option>
+                    <option value='Impact'>Impact</option>
+                    <option value='Verdana'>Verdana</option>
+                    <option value='Yu Gothic Medium'>Yu Gothic Medium</option>
+                </select>
+            </div>
+        </div>
+    </div>
 </main><!--/#contents-->
-
-
 </body>
 
 </html>

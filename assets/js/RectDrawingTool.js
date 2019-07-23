@@ -6,7 +6,13 @@ function RectDrawingTool() {
 
     /** @type {Object} */
     this._archetypeNodeData = {};
+    this.createTemp();
+}
 
+go.Diagram.inherit(RectDrawingTool, go.Tool);
+
+
+  RectDrawingTool.prototype.createTemp = function() {
     var b = new go.Part();
     b.layerName = "Tool";
     b.selectable = false;
@@ -16,15 +22,17 @@ function RectDrawingTool() {
     r.geometry = new go.Geometry(go.Geometry.Rectangle);
     r.fill = null;
     r.strokeWidth = 2;
+    r.stroke = currentColor;
     r.position = new go.Point(0, 0);
     b.add(r);
     b.locationSpot = new go.Spot(0, 0, r.strokeWidth/2, r.strokeWidth/2);
     /** @type {Part} */
     this._tempLine = b;
-}
+  }
 
-go.Diagram.inherit(RectDrawingTool, go.Tool);
-
+  RectDrawingTool.prototype.changeColor = function() {
+    this.createTemp();
+  }
   /**
   * This tool can run when there has been a mouse-drag, far enough away not to be a click,
   * and there has been delay of at least {@link #delay} milliseconds
@@ -67,6 +75,7 @@ go.Diagram.inherit(RectDrawingTool, go.Tool);
     if (diagram === null) return;
     this.isActive = true;
     diagram.isMouseCaptured = true;
+    // this.createTemp();
     diagram.add(this.tempLine);
     this.doMouseMove();
   };
@@ -137,15 +146,18 @@ go.Diagram.inherit(RectDrawingTool, go.Tool);
     if (arch !== null) {
       var data = diagram.model.copyNodeData(arch);
       if (data) {
+        data.color = currentColor;
+        maxZOrder++;
+        data.zOrder = maxZOrder;
         diagram.model.addNodeData(data);
         part = diagram.findPartForData(data);
       }
     }
     if (part !== null) {
       RectDrawingTool.updateLineGeometry(diagram.firstInput.documentPoint, diagram.lastInput.documentPoint, part);
-      if (diagram.allowSelect) {
-        diagram.select(part);  // raises ChangingSelection/Finished
-      }
+      // if (diagram.allowSelect) {
+      //   diagram.select(part);  // raises ChangingSelection/Finished
+      // }
     }
 
     // set the TransactionResult before raising event, in case it changes the result or cancels the tool

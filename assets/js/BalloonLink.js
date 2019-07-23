@@ -1,58 +1,15 @@
 "use strict";
-/*
-*  Copyright (C) 1998-2019 by Northwoods Software Corporation. All Rights Reserved.
-*/
 
-// A custom Link that draws a "balloon" shape around the Link.fromNode
-
-/**
-* @constructor
-* @extends Link
-* @class
-* This custom Link class customizes its Shape to surround the comment node.
-* If the Shape is filled, it will obscure the comment itself unless the Link is behind the comment node.
-* Thus the default layer for BalloonLinks is "Background".
-*/
 function BalloonLink() {
   go.Link.call(this);
   this.layerName = "Background";
-  this._base = 10;
 }
 go.Diagram.inherit(BalloonLink, go.Link);
 
-/**
-* @ignore
-* Copies properties to a cloned BalloonLink.
-* @this {BalloonLink}
-* @param {BalloonLink} copy
-* @override
-*/
-BalloonLink.prototype.cloneProtected = function(copy) {
-  go.Link.prototype.cloneProtected.call(this, copy);
-  copy._base = this._base;
-}
-
-/*
-* The width of the base of the triangle at the center point of the Link.fromNode.
-* The default value is 10.
-* @name BalloonLink#base
-* @function.
-* @return {number}
-*/
-Object.defineProperty(BalloonLink.prototype, "base", {
-  get: function() { return this._base; },
-  set: function(value) { this._base = value; }
-});
-
-/**
-* Produce a Geometry from the Link's route that draws a "balloon" shape around the Link.fromNode
-* and has a triangular shape with the base at the fromNode and the top at the toNode.
-* @this {BalloonLink}
-*/
 BalloonLink.prototype.makeGeometry = function() {
   const startPt = this.getPoint(0);
   const endPt = this.getPoint(1);
-  
+
   const alpha = Math.atan2(startPt.y - endPt.y, endPt.x - startPt.x);
   const theta = Math.atan2(3, 10);
   let beta = Math.atan2(8, 15);

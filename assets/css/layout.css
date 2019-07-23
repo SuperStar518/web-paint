@@ -489,3 +489,81 @@ strong *,
 	outline: none;
 	border: 1px solid black;
 }
+
+.slidecontainer {
+	width: 130px;
+	height: 33px;
+	display: none;
+}
+
+.slider {
+	-webkit-appearance: none;
+	width: 130px;
+	height: 33px;
+	border-radius: 5px;
+	background: url('../img/slider.png');
+	outline: none;
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
+}
+
+.slider:hover {
+	opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 7px;
+	height: 33px;
+	border: 0;
+	background: url('../img/slider_thumb.png');
+	cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+	width: 7px;
+	height: 33px;
+	border: 0;
+	background: url('../img/slider_thumb.png');
+	cursor: pointer;
+}
+
+#color-picker {
+	width: 30px;
+	height: 30px;
+	background-color: red;
+	-webkit-mask-image: url('../img/icon-campus.svg');
+	mask-image: url('../img/icon-campus.svg');
+}
+
+#contextMenu {
+	display: block;
+}
+
+#contextMenu button {
+	width: 25px;
+	height: 25px;
+	border-radius: 12.5px;
+	padding: 0px;
+	margin-bottom: 10px;
+	display: none;
+}
+
+#contextMenu select {
+	position: absolute;
+	top: -40px;
+	font-size: 20px;
+	display: none;
+}
+
+#contextMenu .bucket {
+	width: 25px;
+	height: 25px;
+	background: url('../img/bucket.png');
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}

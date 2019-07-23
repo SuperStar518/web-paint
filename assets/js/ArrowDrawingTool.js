@@ -38,8 +38,14 @@ function ArrowDrawingTool() {
     if (this._fakeStartPort !== null) {
       fromnode = fromport = null;
     }
-    var link = go.LinkingTool.prototype.insertLink.call(this, fromnode, fromport, tonode, toport);
-    if (link !== null) link.defaultFromPoint = this.diagram.firstInput.documentPoint.copy();
+//    this.archetypeLinkData.color = currentColor;
+    const link = go.LinkingTool.prototype.insertLink.call(this, fromnode, fromport, tonode, toport);
+    if (link !== null) {
+      link.defaultFromPoint = this.diagram.firstInput.documentPoint.copy();
+      this.diagram.model.setDataProperty(link.data, "color", currentColor);
+      maxZOrder++;
+      this.diagram.model.setDataProperty(link.data, "zOrder", maxZOrder);
+    }
     return link;
   };
 
