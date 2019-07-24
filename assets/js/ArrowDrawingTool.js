@@ -3,8 +3,20 @@ function ArrowDrawingTool() {
     this.name = "ArrowDrawing";
     this.isUnconnectedLinkValid = true;
     this._fakeStartPort = null;
+    this.archetypeLinkData = {};
+    this.temporaryLink = go.GraphObject.make(ArrowLink, 
+      { relinkableFrom: true, relinkableTo: true },
+      go.GraphObject.make(go.Shape, { isPanelMain: true, stroke: currentColor, fill: currentColor })
+    );
   }
   go.Diagram.inherit(ArrowDrawingTool, go.LinkingTool);
+
+  ArrowDrawingTool.prototype.changeColor = function() {
+    this.temporaryLink = go.GraphObject.make(ArrowLink, 
+      { relinkableFrom: true, relinkableTo: true },
+      go.GraphObject.make(go.Shape, { isPanelMain: true, stroke: currentColor, fill: currentColor })
+    );
+  }
 
   ArrowDrawingTool.prototype.canStart = function() {
     if (!this.isEnabled) return false;
@@ -38,7 +50,6 @@ function ArrowDrawingTool() {
     if (this._fakeStartPort !== null) {
       fromnode = fromport = null;
     }
-//    this.archetypeLinkData.color = currentColor;
     const link = go.LinkingTool.prototype.insertLink.call(this, fromnode, fromport, tonode, toport);
     if (link !== null) {
       link.defaultFromPoint = this.diagram.firstInput.documentPoint.copy();

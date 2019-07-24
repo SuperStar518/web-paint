@@ -13,9 +13,8 @@ let fontChanged = false;
 let selectedNode;
 const marginHeight = 126 + 80 + 20;
 const marginWidth = 50 + 20;
-const MAX_SCALE = 1;
+const MAX_SCALE = 2;
 const MIN_SCALE = 0.3;
-const SCALE_STEP = 0.1;
 
 const TOOL_ARROW = 0;
 const TOOL_LINE = 1;
@@ -24,11 +23,12 @@ const TOOL_TEXT = 3;
 const TOOL_FREEHAND = 4;
 const TOOL_NAMES = ['ArrowDrawing', 'LineDrawing', 'RectDrawing', 'TextDrawing', 'FreehandDrawing'];
 const MENU_IDS = ['arrowMenu', 'lineMenu', 'rectMenu', 'textMenu', 'pencilMenu'];
-const FONT_FAMLIY=['Open sans', 'Impact', 'Verdana', 'Yu Gothic Medium'];
+const DEFAULT_FAUNT = 'Open sans';
 function init() {
     initColorPicker();
     initGoModule();
     initLineWidthModule();
+    drawArrow();
 }
 
 /////////////Init Line Width change Module//////////////////////
@@ -43,11 +43,14 @@ function initLineWidthModule() {
         }
     });
     $('html').on('click', function(e) {
-        if (!$(e.target).parents().is('#pencilMenu') &&
-           !$(e.target).parents().is('.popover-body')) {
+        const parents = $(e.target).parents();
+        //hide pencil popover element
+        if (!parents.is('#pencilMenu') &&
+           !parents.is('.popover-body')) {
           $('#pencilMenu').popover('hide');
         }
-        if (!$(e.target).parents().is('#myDiagram')) {
+        //clear selection when click elements besides context menu and color select
+        if (!parents.is('#myDiagram') && !parents.is('#contextMenu') && !parents.is('.colorpicker')) {
             myDiagram.clearSelection();
         }
     });
@@ -100,6 +103,7 @@ function initGoModule() {
         'draggingTool.dragsLink': true,
         'draggingTool.isGridSnapEnabled': true,
         'relinkingTool.isUnconnectedLinkValid': true,
+        zoomPoint: new go.Point(0,0)
     });
     
     // myDiagram.defaultCursor = 'crosshair';
@@ -110,7 +114,6 @@ function initGoModule() {
     initText();
     initFreehand();
     initEvent();
-    // initContextMenu();
 
     $('#myDiagram canvas').mousedown(() => {
         hideColorPicker();
@@ -118,27 +121,14 @@ function initGoModule() {
     });
 }
 
-// function initContextMenu() {
-//     const cxElement = document.getElementById('contextMenu');
-//     const myContextMenu = $_(go.HTMLInfo, {
-//         show: showContextMenu,
-//         mainElement: cxElement
-//     });
-//     myDiagram.contextMenu = myContextMenu;
-//     cxElement.addEventListener('contextmenu', function(e) {
-//         e.preventDefault();
-//         return true;
-//     }, false);
-// }
-
-function showContextMenu(obj, diagram, tool) {
+//control context menu
+function showContextMenu(obj) {
     if (!obj) {
         return;
     }
     const cxElement = document.getElementById('contextMenu');
     cxElement.style.display = 'block';
-    // Show only the relevant buttons given the current state.
-    var cmd = diagram.commandHandler;
+
     document.getElementById('btn_del').style.display = 'block';
     document.getElementById('btn_up').style.display = 'block';
     document.getElementById('btn_down').style.display = 'block';
@@ -146,8 +136,7 @@ function showContextMenu(obj, diagram, tool) {
     document.getElementById('btn_txt_large').style.display = obj.data.category === TOOL_NAMES[TOOL_TEXT] ? 'block' : 'none';
     document.getElementById('btn_txt_small').style.display = obj.data.category === TOOL_NAMES[TOOL_TEXT] ? 'block' : 'none';
     document.getElementById('btn_font_select').style.display = obj.data.category === TOOL_NAMES[TOOL_TEXT] ? 'block' : 'none';
-
-    // we don't bother overriding positionContextMenu, we just do it here:
+    $('#btn_font_select').val(DEFAULT_FAUNT);
     cxElement.style.left = (obj.location.x - 30) + 'px';
     cxElement.style.top = obj.location.y + 'px';
 }
@@ -160,15 +149,17 @@ function hideContextMenu() {
 function cxcommand(event, val) {
     if (val === undefined) val = event.currentTarget.id;
     const currNode = myDiagram.selection.first();
-    myDiagram.toolManager.textEditingTool.doCancel();
+    myDiagram.toolManager.textEditingTool.acceptText(go.TextEditingTool.Tab);
     switch (val) {
         case 'btn_del':
             myDiagram.commandHandler.deleteSelection();
+            myDiagram.clearSelection();
             hideContextMenu();
             break;
         case 'btn_up': 
             maxZOrder++;
             myDiagram.model.setDataProperty(currNode.data, 'zOrder', maxZOrder);
+            myDiagram.clearSelection();
             hideContextMenu();
             break;
         case 'btn_down':
@@ -184,6 +175,7 @@ function cxcommand(event, val) {
             });
             maxZOrder++;
             myDiagram.model.setDataProperty(currNode.data, 'zOrder', 1);
+            myDiagram.clearSelection();
             hideContextMenu();
             break;
         case 'btn_bucket':
@@ -211,6 +203,7 @@ function cxcommand(event, val) {
     }
 }
 
+//Init Gojs Diagram event
 function initEvent() {
     myDiagram.addDiagramListener('ChangedSelection', () => {
         const selectedNodeCount = myDiagram.selection.count;
@@ -231,7 +224,7 @@ function initEvent() {
         //show / hide context menu
         if (selectedNodeCount == 1) {
             const selectedNode = myDiagram.selection.first();
-            showContextMenu(selectedNode, myDiagram);
+            showContextMenu(selectedNode);
         } else if (fontChanged) {
             fontChanged = false;
             myDiagram.select(selectedNode);
@@ -293,7 +286,7 @@ function initEvent() {
     myDiagram.addDiagramListener('SelectionMoved', (e) => {
         if ( myDiagram.selection.count === 1) {
             const selectedNode = myDiagram.selection.first();
-            showContextMenu(selectedNode, myDiagram);
+            showContextMenu(selectedNode);
         }
     })
 }
@@ -313,14 +306,11 @@ function loadBackgroud() {
         div.style.width = canvasWidth + 'px';
         div.style.height = canvasHeight + 'px';
         myDiagram.requestUpdate();
-        
-        // const canvasElement = $('#myDiagram canvas');
-        // const ctx = canvas.getContext("2d");
-        // ctx.drawImage(img, 0, 0);
+        myDiagram.fixedBounds = new go.Rect(0, 0, canvasWidth, canvasHeight);
         myDiagram.add(
             $_(go.Part,
-            { layerName: 'Background', selectable: false, pickable: false, },
-            $_(go.Picture, backImagePath, { width: canvasWidth - 10, height: canvasHeight - 10, imageStretch: go.GraphObject.Uniform})
+                { name:'backImage', layerName: 'Background', selectable: false, pickable: false},
+                $_(go.Picture, backImagePath, { width: canvasWidth - 10, height: canvasHeight - 10})
         ));
     });
 
@@ -328,14 +318,13 @@ function loadBackgroud() {
 
 function initArrow() {
     const tool = new ArrowDrawingTool();
-    tool.isEnabled = true;
     tool.isBackgroundOnly = false;
-    tool.archetypeLinkData = { strokeWidth: 2};
+    tool.isEnabled = false;
     myDiagram.toolManager.mouseMoveTools.insertAt(TOOL_ARROW, tool);
 
-    myDiagram.linkTemplate = 
-        $_(BalloonLink,
-            { selectable: true},
+    myDiagram.linkTemplateMap.add(TOOL_NAMES[TOOL_ARROW], 
+        $_(ArrowLink, 
+            { selectable: true, relinkableFrom: true, relinkableTo: true },
             new go.Binding('zOrder'),
             $_(go.Shape, { isPanelMain: true, strokeWidth: 2 },
                 new go.Binding('stroke', 'color'),
@@ -344,53 +333,34 @@ function initArrow() {
             { selectionAdornmentTemplate:
                 $_(go.Adornment,
                     $_(go.Shape,
-                        { isPanelMain: true, stroke: 'rgba(30, 144, 255, 0.3)', strokeWidth: 10 },
-                        new go.Binding('fill', 'color'))
+                        { isPanelMain: true, stroke: 'rgba(30, 144, 255, 0.3)', strokeWidth: 10, fill: 'rgba(0, 0, 0, 0)' })
                 )
             }
-        );
+    ));
+
 }
 
 function initLine() {
-    let tool = new LineDrawingTool();
-    tool.archetypeNodeData =
-        { zOrder: 1, category: TOOL_NAMES[TOOL_LINE] };
+    const tool = new LineDrawingTool();
     tool.isBackgroundOnly = false;
-    myDiagram.toolManager.mouseMoveTools.insertAt(TOOL_LINE, tool);
     tool.isEnabled = false;
+    myDiagram.toolManager.mouseMoveTools.insertAt(TOOL_LINE, tool);
+
     
-    myDiagram.nodeTemplateMap.add(TOOL_NAMES[TOOL_LINE],
-        $_(go.Node, 'Spot',
+    myDiagram.linkTemplateMap.add(TOOL_NAMES[TOOL_LINE],
+        $_(go.Link, 
+            { selectable: true, relinkableFrom: true, relinkableTo: true },
             new go.Binding('zOrder'),
-            {selectable: true },
-            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            { locationObjectName: 'SHAPE', locationSpot: new go.Spot(0, 0, 0.5, 0.5) },
-            { resizable: true, resizeObjectName: 'PANEL' },
-            new go.Binding('locationSpot', 'strokeWidth', function(sw) { return new go.Spot(0, 0, sw / 2, sw / 2); }).ofObject('SHAPE'),
-            $_(go.Panel, 'Auto',
-                { name: 'PANEL' },
-                $_(go.Shape, 'Rectangle',
-                    { fill: 'transparent', stroke: 'transparent'},
-                    new go.Binding('visible', 'isSelected', (isSelected) => {
-                        return isSelected ? true : false;
-                    })
-                ),
-                $_(go.Shape, { name: 'SHAPE' },
-                    new go.Binding('desiredSize', 'size', go.Size.parse).makeTwoWay(go.Size.stringify),
-                    new go.Binding('geometry', 'pts', (pts) => {
-                        var geo = new go.Geometry(go.Geometry.Line);
-                        geo.startX = pts[0];
-                        geo.startY = pts[1];
-                        geo.endX = pts[2];
-                        geo.endY = pts[3];
-                        return geo;
-                    }).makeTwoWay( (geo) => {
-                        return [geo.startX, geo.startY, geo.endX, geo.endY];
-                    } ),
-                    new go.Binding('stroke', 'color').makeTwoWay(),
-                    new go.Binding('strokeWidth', 'strokeWidth').makeTwoWay()
+            $_(go.Shape, { isPanelMain: true, strokeWidth: 3 },
+                new go.Binding('stroke', 'color'),
+                new go.Binding('fill', 'color')
+            ),
+            { selectionAdornmentTemplate:
+                $_(go.Adornment,
+                    $_(go.Shape,
+                        { isPanelMain: true, stroke: 'rgba(30, 144, 255, 0.3)', strokeWidth: 10 })
                 )
-            )
+            }
     ));
 }
 
@@ -493,33 +463,51 @@ function initText() {
     );
 }
 
+////////////////////////////Top Tool Bar Actoins////////////////////////////////
 function zoomIn() {
-    myDiagram.scale += SCALE_STEP;
-    let div = myDiagram.div;
-    div.style.width = Math.round(canvasWidth * myDiagram.scale) + 'px';
-    div.style.height = Math.round(canvasHeight * myDiagram.scale) + 'px';
-    myDiagram.requestUpdate(); // Needed!
+    if (myDiagram.commandHandler.canIncreaseZoom()) {
+        myDiagram.commandHandler.increaseZoom();
+        let div = myDiagram.div;
+        div.style.width = Math.round(canvasWidth * myDiagram.scale) + 'px';
+        div.style.height = Math.round(canvasHeight * myDiagram.scale) + 'px';
+        myDiagram.requestUpdate();
+    }
 }
 
 function zoomOut() {
-    myDiagram.scale -= SCALE_STEP;
-    let div = myDiagram.div;
-    div.style.width = Math.round(canvasWidth * myDiagram.scale) + 'px';
-    div.style.height = Math.round(canvasHeight * myDiagram.scale) + 'px';
-    myDiagram.requestUpdate(); // Needed!
+    if (myDiagram.commandHandler.canDecreaseZoom()) {
+        myDiagram.commandHandler.decreaseZoom();
+        let div = myDiagram.div;
+        div.style.width = Math.round(canvasWidth * myDiagram.scale) + 'px';
+        div.style.height = Math.round(canvasHeight * myDiagram.scale) + 'px';
+        myDiagram.requestUpdate();
+    }
 }
 
 function undo()
 {
+    if (!myDiagram.isModified || !$('.return').hasClass('active')) {
+        return;
+    }
 	myDiagram.undoManager.undo();
 }
 
 function save() {
+    if (!myDiagram.isModified || !$('.save').hasClass('active')) {
+        return;
+    }
+    myDiagram.toolManager.textEditingTool.acceptText(go.TextEditingTool.Tab);
+    myDiagram.clearSelection();
+    myDiagram.isModified = false;
     const img = myDiagram.makeImageData({
         scale: 1,
         type: "image/png"
     });
     download(img, 'Gyazo.png', 'image/png');
+
+    $('.return').removeClass('active');
+    $('.save').removeClass('active');
+
 }
 
 function cancel() {
@@ -547,6 +535,11 @@ function updateDrawMode() {
         $('#' + MENU_IDS[i]).removeClass('active');
     }
     $('#'+MENU_IDS[currentTool]).addClass('active');
+
+    if (currentTool === TOOL_ARROW || currentTool === TOOL_LINE) {
+        tool = myDiagram.toolManager.linkingTool;
+        myDiagram.model.setCategoryForLinkData(tool.archetypeLinkData, TOOL_NAMES[currentTool]);
+    }
 }
 
 function drawArrow() {
@@ -585,13 +578,14 @@ function changeColor() {
     let tool;
     for (i = 0 ; i < 5 ; i ++) {
         tool = myDiagram.toolManager.findTool(TOOL_NAMES[i]);
-        if (tool && tool instanceof go.Tool && !(tool instanceof go.LinkingTool)) {
+        if (tool && tool instanceof go.Tool) {
             tool.changeColor();
         }
     }
     $('#color-picker').css('background-color', currentColor);
 }
 
+//////////////////////////////INIT ALL/////////////////////////////////////////
 $(document).ready(function() {
     init();
 });

@@ -1,12 +1,12 @@
 "use strict";
 
-function BalloonLink() {
+function ArrowLink() {
   go.Link.call(this);
-  this.layerName = "Background";
+  // this.layerName = "Background";
 }
-go.Diagram.inherit(BalloonLink, go.Link);
+go.Diagram.inherit(ArrowLink, go.Link);
 
-BalloonLink.prototype.makeGeometry = function() {
+ArrowLink.prototype.makeGeometry = function() {
   const startPt = this.getPoint(0);
   const endPt = this.getPoint(1);
 
