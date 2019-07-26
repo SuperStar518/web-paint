@@ -9,8 +9,8 @@ let currentColor = 'red';
 let lineWidth = 5;
 let maxZOrder = 1;
 let minZOrder = 1;
-let fontChanged = false;
-let selectedNode;
+let isTextEditStarting = false;
+
 const marginHeight = 126 + 80 + 20;
 const marginWidth = 50 + 20;
 const MAX_SCALE = 2;
@@ -23,7 +23,7 @@ const TOOL_TEXT = 3;
 const TOOL_FREEHAND = 4;
 const TOOL_NAMES = ['ArrowDrawing', 'LineDrawing', 'RectDrawing', 'TextDrawing', 'FreehandDrawing'];
 const MENU_IDS = ['arrowMenu', 'lineMenu', 'rectMenu', 'textMenu', 'pencilMenu'];
-const DEFAULT_FAUNT = 'Open sans';
+
 function init() {
     initColorPicker();
     initGoModule();
@@ -114,11 +114,6 @@ function initGoModule() {
     initText();
     initFreehand();
     initEvent();
-
-    $('#myDiagram canvas').mousedown(() => {
-        hideColorPicker();
-        hideContextMenu();
-    });
 }
 
 //control context menu
@@ -136,14 +131,15 @@ function showContextMenu(obj) {
     document.getElementById('btn_txt_large').style.display = obj.data.category === TOOL_NAMES[TOOL_TEXT] ? 'block' : 'none';
     document.getElementById('btn_txt_small').style.display = obj.data.category === TOOL_NAMES[TOOL_TEXT] ? 'block' : 'none';
     document.getElementById('btn_font_select').style.display = obj.data.category === TOOL_NAMES[TOOL_TEXT] ? 'block' : 'none';
-    $('#btn_font_select').val(DEFAULT_FAUNT);
-    cxElement.style.left = (obj.location.x - 30) + 'px';
-    cxElement.style.top = obj.location.y + 'px';
+    cxElement.style.left = (obj.location.x * myDiagram.scale - 30) + 'px';
+    cxElement.style.top = obj.location.y * myDiagram.scale + 'px';
 }
 
 function hideContextMenu() {
     const cxElement = document.getElementById('contextMenu');
     cxElement.style.display = 'none';
+    $('textarea.goTXarea').css('z-index', 0);
+    $('#myDiagram canvas').focus();
 }
 
 function cxcommand(event, val) {
@@ -187,22 +183,17 @@ function cxcommand(event, val) {
             break;
         case 'btn_txt_large':
             myDiagram.model.setDataProperty(currNode.data, 'fontSize', currNode.data.fontSize + 5);
-            fontChanged = true;
-            selectedNode = currNode;
             break;
         case 'btn_txt_small':
             myDiagram.model.setDataProperty(currNode.data, 'fontSize', Math.max(currNode.data.fontSize - 5, 5));
-            selectedNode = currNode;
-            fontChanged = true;
             break;
         case 'btn_font_select':
             myDiagram.model.setDataProperty(currNode.data, 'fontFamily', event.target.value);
-            selectedNode = currNode;
-            fontChanged = true;
             break;
     }
 }
 
+/////////////////////////////////////////////////
 //Init Gojs Diagram event
 function initEvent() {
     myDiagram.addDiagramListener('ChangedSelection', () => {
@@ -225,10 +216,7 @@ function initEvent() {
         if (selectedNodeCount == 1) {
             const selectedNode = myDiagram.selection.first();
             showContextMenu(selectedNode);
-        } else if (fontChanged) {
-            fontChanged = false;
-            myDiagram.select(selectedNode);
-        } else {
+        }  else {
             hideContextMenu();
         }
 
@@ -256,26 +244,36 @@ function initEvent() {
     });
 
     myDiagram.addDiagramListener('BackgroundSingleClicked', (e) => {
-        if (currentTool == TOOL_TEXT) {
+        const currNode = e.diagram.selection.first();
+        
+        if (currentTool === TOOL_TEXT && (!currNode)) {
             const pt = e.diagram.lastInput.documentPoint;
             const location = pt.x + ' ' + pt.y;
             maxZOrder++;
-            const nodeData = {zOrder: maxZOrder, category: TOOL_NAMES[TOOL_TEXT], size:'100 50', loc: location, text_content: ' ', color: currentColor, fontSize: 20, fontFamily: 'Open sans'};
+            const nodeData = {zOrder: maxZOrder, category: TOOL_NAMES[TOOL_TEXT], size:'100 50', loc: location, text_content: '', color: currentColor, fontSize: 20, fontFamily: 'Open sans'};
             myDiagram.model.addNodeData(nodeData);
             const part = e.diagram.findPartForData(nodeData);
             if (part) {
                 e.diagram.select(part);
             }
+            isTextEditStarting = true;
         } else {
-            hideContextMenu();
+            myDiagram.clearSelection();
         }
     });
 
     myDiagram.addDiagramListener('LayoutCompleted', (e) => {
         const part = e.diagram.selection.first();
         if (part && part.data.category === TOOL_NAMES[TOOL_TEXT]) {
-            const textBlock = part.findObject('TEXT_BLOCK');
-            myDiagram.commandHandler.editTextBlock(textBlock);
+            if (isTextEditStarting){
+                const textBlock = part.findObject('TEXT_BLOCK');
+                myDiagram.commandHandler.editTextBlock(textBlock);
+                isTextEditStarting = false;
+                $('.goTXarea').on('keyup', () => {
+                    const part = myDiagram.selection.first();
+                    myDiagram.model.setDataProperty(part.data, 'text_content', $('textarea.goTXarea').val());
+                })
+            }
         }
     });
     
@@ -288,9 +286,40 @@ function initEvent() {
             const selectedNode = myDiagram.selection.first();
             showContextMenu(selectedNode);
         }
-    })
+    });
+
+    $('#myDiagram canvas').mousedown(() => {
+        hideColorPicker();
+        if (myDiagram.selection.count == 1) {
+            const part = myDiagram.selection.first();
+            if (part.data.category === TOOL_NAMES[TOOL_TEXT] && part.data.text_content === '') {
+                myDiagram.commandHandler.deleteSelection();
+            }
+        } else {
+            hideContextMenu();
+        }
+    });
 }
 
+function mouseEnterEventProc() {
+    const tool = myDiagram.toolManager.findTool(TOOL_NAMES[currentTool]);
+    if (tool && tool instanceof go.Tool) {
+        tool.isEnabled = false;
+    }
+}
+
+function mouseLeaveEventProc(e, node) {
+    if (node.isSelected) {
+        return;
+    }
+    const tool = myDiagram.toolManager.findTool(TOOL_NAMES[currentTool]);
+    if (tool && tool instanceof go.Tool) {
+        tool.isEnabled = true;
+    }
+}
+
+///////////////////////////////////////////////////
+//Init Gojs Diagram componenets
 function loadBackgroud() {
     
     const img = new Image();
@@ -299,8 +328,8 @@ function loadBackgroud() {
     img.addEventListener('load', function(){
         const scale = Math.max(this.naturalWidth / Math.min((window.innerWidth - marginWidth), this.naturalWidth), 
                                 this.naturalHeight / Math.min((window.innerHeight - marginHeight), this.naturalHeight));
-        canvasWidth = Math.round(this.naturalWidth / scale) + 10;
-        canvasHeight = Math.round(this.naturalHeight / scale) + 10;
+        canvasWidth = Math.round(this.naturalWidth / scale) - 2;
+        canvasHeight = Math.round(this.naturalHeight / scale) - 2;
 
         let div = myDiagram.div;
         div.style.width = canvasWidth + 'px';
@@ -309,8 +338,8 @@ function loadBackgroud() {
         myDiagram.fixedBounds = new go.Rect(0, 0, canvasWidth, canvasHeight);
         myDiagram.add(
             $_(go.Part,
-                { name:'backImage', layerName: 'Background', selectable: false, pickable: false},
-                $_(go.Picture, backImagePath, { width: canvasWidth - 10, height: canvasHeight - 10})
+                { name:'backImage', layerName: 'Background', selectable: false, pickable: false, position: new go.Point(-5,-5)},
+                $_(go.Picture, backImagePath, { width: canvasWidth+6, height: canvasHeight+6})
         ));
     });
 
@@ -326,7 +355,7 @@ function initArrow() {
         $_(ArrowLink, 
             { selectable: true, relinkableFrom: true, relinkableTo: true },
             new go.Binding('zOrder'),
-            $_(go.Shape, { isPanelMain: true, strokeWidth: 2 },
+            $_(go.Shape, { isPanelMain: true, strokeWidth: 3 },
                 new go.Binding('stroke', 'color'),
                 new go.Binding('fill', 'color')
             ),
@@ -335,6 +364,10 @@ function initArrow() {
                     $_(go.Shape,
                         { isPanelMain: true, stroke: 'rgba(30, 144, 255, 0.3)', strokeWidth: 10, fill: 'rgba(0, 0, 0, 0)' })
                 )
+            },
+            {
+                mouseEnter: mouseEnterEventProc,
+                mouseLeave: mouseLeaveEventProc
             }
     ));
 
@@ -351,15 +384,19 @@ function initLine() {
         $_(go.Link, 
             { selectable: true, relinkableFrom: true, relinkableTo: true },
             new go.Binding('zOrder'),
-            $_(go.Shape, { isPanelMain: true, strokeWidth: 3 },
+            $_(go.Shape, { isPanelMain: true, strokeWidth: 4 },
                 new go.Binding('stroke', 'color'),
                 new go.Binding('fill', 'color')
             ),
             { selectionAdornmentTemplate:
                 $_(go.Adornment,
                     $_(go.Shape,
-                        { isPanelMain: true, stroke: 'rgba(30, 144, 255, 0.3)', strokeWidth: 10 })
+                        { isPanelMain: true, stroke: 'rgba(30, 144, 255, 0.3)', strokeWidth: 6 })
                 )
+            },
+            {
+                mouseEnter: mouseEnterEventProc,
+                mouseLeave: mouseLeaveEventProc
             }
     ));
 }
@@ -401,7 +438,11 @@ function initRect() {
                         return data.isFill ? data.color : 'transparent';
                     })
                 )
-            )
+            ),
+            {
+                mouseEnter: mouseEnterEventProc,
+                mouseLeave: mouseLeaveEventProc
+            }
     ));
 }
 
@@ -432,7 +473,11 @@ function initFreehand() {
                     { name: 'SHAPE', fill: null, strokeWidth: lineWidth },
                     new go.Binding('stroke', 'color').makeTwoWay(),
                     new go.Binding('strokeWidth', 'strokeWidth').makeTwoWay())
-             )
+             ),
+             {
+                 mouseEnter: mouseEnterEventProc,
+                 mouseLeave: mouseLeaveEventProc
+             }
          )
      );
 }
@@ -444,11 +489,6 @@ function initText() {
             new go.Binding('zOrder'),
             $_(go.Panel, 'Auto',
                 {name: 'TEXT_PANEL', padding: 2},
-                $_(go.Shape,
-                    {fill: null, strokeWidth: 2, stroke: null},
-                    new go.Binding('stroke', 'isSelected', (isSelected) => {
-                        return isSelected ? 'blue' : 'transparent';
-                    })),
                 $_(go.TextBlock, 
                     {name: 'TEXT_BLOCK'},
                     new go.Binding('angle').makeTwoWay(),
@@ -458,7 +498,11 @@ function initText() {
                     new go.Binding('font', '', (data) => {
                         return data.fontSize + 'px ' + data.fontFamily;
                     }))
-            )
+            ),
+            {
+                mouseEnter: mouseEnterEventProc,
+                mouseLeave: mouseLeaveEventProc
+            }
         )
     );
 }
